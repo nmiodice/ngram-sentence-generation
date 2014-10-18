@@ -1,4 +1,5 @@
 import operator
+import sys
 from nltk.util import ngrams
 
 
@@ -12,16 +13,22 @@ class WordGenerator:
     
     # Creates a new WordGenerator using a given NG, which is of type 
     # NLTK.UTIL.NGRAMS. While the object is initialized with just one NG, 
-    # more can be added later
-    def __init__(self, ng):
+    # more can be added later. An optional parameter is INCLUDE_SHORTER_GRAMS,
+    # which if true, will include ngrams shorter than the original set of
+    # ngrams (i.e., if a 5gram is included, 4gram, 3gram and 2grams will be
+    # saved too)
+    def __init__(self, ng, include_shorter_grams = True):
         self.word_probs = WordProb()
-        self.add_list_of_ngrams(ng)
+        self.add_list_of_ngrams(ng, include_shorter_grams)
 
     # Adds an NG of type NLTK.UTIL.NGRAMS to the list of words in the master
-    # dictionary inside self.word_probs
-    def add_list_of_ngrams(self, ng):
+    # dictionary inside self.word_probs. An optional parameter is 
+    # INCLUDE_SHORTER_GRAMS, which if true, will include ngrams shorter than the
+    # original set of ngrams (i.e., if a 5gram is included, 4gram, 3gram and 
+    # 2grams will be saved too)
+    def add_list_of_ngrams(self, ng, include_shorter_grams = True):
         for gram in ng:
-            self.word_probs.add_ngram_observation(gram)
+            self.word_probs.add_ngram_observation(gram, include_shorter_grams)
     
     # Returns a sorted list of the most likely words that will come after
     # the sequence of of strings in WORDS, according to the NGRAMS added with 
@@ -29,7 +36,7 @@ class WordGenerator:
     # is the minimum number of elements from WORDS that must match for the
     # method to return a valid next word. NUM_TO_RETURN indicates how many
     # of the highest ranked choices should be returned. If no matches are found,
-    # '' is returned. 
+    # NONE is returned. 
     #
     # Notes:
     #   1. The returned value is matched against the largest possible number of
@@ -41,9 +48,14 @@ class WordGenerator:
     #       list short at NUM_TO_RETURN element would cut out equally as well
     #       matched terms, all of the equally as well matched terms will be
     #       returned
-    def get_next_word(self, words, min_preceding_match = -1, num_to_return = -1):
-        if min_preceding_match <= 0:
-            min_preceding_match = len(words)
+    #
+    #   3. If NUM_TO_RETURN is 1 (default), then only the best matched words
+    #       are returned
+    def get_next_words(self, words, min_preceding_match = -1, 
+        num_to_return = 1):
+        
+#        if min_preceding_match <= 0:
+#            min_preceding_match = sys.maxsize
         if num_to_return < 0:
             num_to_return = 1
 
@@ -55,6 +67,8 @@ class WordGenerator:
                 match = True
             else:
                 words = words[1:]
+        if matches == None:
+            return None
 
         # now, filter out matches and return at least NUM_TO_RETURN elements,
         # as specified in the comments for this method
@@ -80,21 +94,30 @@ class WordProb:
         self.master = dict()
     
     # Convert an ngram into a key and value pair, which is then stored in
-    # the master dictionary
-    def add_ngram_observation(self, ng_tuple):
+    # the master dictionary. An optional parameter is INCLUDE_SHORTER_GRAMS,
+    # which if true, will include ngrams shorter than the original set of
+    # ngrams (i.e., if a 5gram is included, 4gram, 3gram and 2grams will be
+    # saved too)
+    def add_ngram_observation(self, ng_tuple, include_shorter_grams = True):
         num_keys = len(ng_tuple) - 1
         assert(num_keys) >= 1
         
-        key = ""
-        for i in range(num_keys):
-            key += ng_tuple[i]
-            key += '_'
-        key = key[0:-1]
-        observed_word = ng_tuple[-1]
+        while len(ng_tuple) >= 2:
+            num_keys = len(ng_tuple) - 1
+            key = ""
+            for i in range(num_keys):
+                key += ng_tuple[i]
+                key += '_'
+            key = key[0:-1]
+            observed_word = ng_tuple[-1]
 
-        if (key in self.master) == False:
-            self.master[key] = NgramProb()
-        self.master[key].add_word_observation(observed_word)
+            if (key in self.master) == False:
+                self.master[key] = NgramProb()
+            self.master[key].add_word_observation(observed_word)
+            if include_shorter_grams == True:
+                ng_tuple = ng_tuple[1:]
+            else:
+                break
     
     # Get the likelihood of a particular word given a list of preceding words
     # in the PRECEDING_WORDS list. Returns None if no key is matched in 
@@ -140,7 +163,8 @@ class NgramProb:
         for key, count in self.seen_next_words.items():
             sorted_by_prob.append((key, count/self.total_words_seen))
 
-        sorted_by_prob = sorted(sorted_by_prob, key=operator.itemgetter(1), reverse = True)
+        sorted_by_prob = sorted(sorted_by_prob, key=operator.itemgetter(1), 
+            reverse = True)
         return sorted_by_prob
         
         

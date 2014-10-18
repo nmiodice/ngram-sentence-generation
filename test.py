@@ -32,27 +32,29 @@ def test_word_generator():
     strContent = TextUtils.normalize_line(str)
     ng = ngrams(strContent, 3)
     wg = WordGenerator(ng)    
-    match = wg.get_next_word(['hello', 'world'])
+    match = wg.get_next_words(['hello', 'world'])
     assert (match[0][0] == 'alex') or (match[0][0] == 'i')
     assert (match[1][0] == 'alex') or (match[1][0] == 'i')
     assert len(match) == 2
 
-    match = wg.get_next_word(['ignore', 'hello', 'world'], min_preceding_match = 2)
+    match = wg.get_next_words(['ignore', 'hello', 'world'], 
+        min_preceding_match = 2)
     assert (match[0][0] == 'alex') or (match[0][0] == 'i')
     assert (match[1][0] == 'alex') or (match[1][0] == 'i')
     assert len(match) == 2
     
     # should have length 2, because each word has equal probability
-    match = wg.get_next_word(['hello', 'world'], num_to_return = 1)
+    match = wg.get_next_words(['hello', 'world'], num_to_return = 1)
     assert (match[0][0] == 'alex') or (match[0][0] == 'i')
     assert len(match) == 2
 
     # each word does not have equal probability, so the expected length is 1
-    match = wg.get_next_word(['alex', 'is'], num_to_return = 1)
+    match = wg.get_next_words(['alex', 'is'], num_to_return = 1)
     assert (match[0][0] == 'a')
     assert len(match) == 1
     
-    match = wg.get_next_word(['ignore', 'hello', 'world'], min_preceding_match = 2, num_to_return = 2)
+    match = wg.get_next_words(['ignore', 'hello', 'world'], 
+        min_preceding_match = 2, num_to_return = 2)
     assert (match[0][0] == 'alex') or (match[0][0] == 'i')
     assert (match[1][0] == 'alex') or (match[1][0] == 'i')
     assert len(match) == 2

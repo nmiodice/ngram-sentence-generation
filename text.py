@@ -30,7 +30,7 @@ class TextUtils:
 	#	3. Strips leading and trailing white space
 	#	4. Removes duplicate white space
 	# The returned value is a list, each element being one word from the
-	# cleaned version of LINE
+	# cleaned version of LINE, or order of original appearance 
 	@staticmethod
 	def normalize_line(line):
 		line = line.lower()
