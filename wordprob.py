@@ -54,8 +54,6 @@ class WordGenerator:
     def get_next_words(self, words, min_preceding_match = -1, 
         num_to_return = 1):
         
-#        if min_preceding_match <= 0:
-#            min_preceding_match = sys.maxsize
         if num_to_return < 0:
             num_to_return = 1
 
@@ -67,6 +65,8 @@ class WordGenerator:
                 match = True
             else:
                 words = words[1:]
+                if len(words) == 0:
+                    break
         if matches == None:
             return None
 
@@ -101,24 +101,20 @@ class WordProb:
     def add_ngram_observation(self, ng_tuple, include_shorter_grams = True):
         num_keys = len(ng_tuple) - 1
         assert(num_keys) >= 1
-        
-        while len(ng_tuple) >= 2:
-            num_keys = len(ng_tuple) - 1
-            key = ""
-            for i in range(num_keys):
-                key += ng_tuple[i]
-                key += '_'
-            key = key[0:-1]
-            observed_word = ng_tuple[-1]
+        observed_word = ng_tuple[-1]
 
+        keys = []
+        if include_shorter_grams == True:
+            for i in range(num_keys):
+                keys.append('_'.join(ng_tuple[0:i + 1]))
+        else:
+            keys.append('_'.join(ng_tuple[0:num_keys]))
+            
+        for key in keys:
             if (key in self.master) == False:
-                self.master[key] = NgramProb()
+                self.master[key] = NgramProb(key)
             self.master[key].add_word_observation(observed_word)
-            if include_shorter_grams == True:
-                ng_tuple = ng_tuple[1:]
-            else:
-                break
-    
+
     # Get the likelihood of a particular word given a list of preceding words
     # in the PRECEDING_WORDS list. Returns None if no key is matched in 
     # self.master
@@ -142,10 +138,12 @@ class NgramProb:
     #       words might be the next word. Keys are words, values are
     #       the count of times that word has been seen
     #   self.total_words_seen: A count of how many words have been added
+    #   self.key: The key that led to these word observations
 
-    def __init__(self):
+    def __init__(self, key):
         self.seen_next_words = dict()
         self.total_words_seen = 0
+        self.key = key
     
     # Add a word to the observation dictionary, or create a new entry if
     # the word hasn't been seen yet

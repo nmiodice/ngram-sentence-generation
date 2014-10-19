@@ -103,7 +103,7 @@ def test_word_prob():
    
 # Test NgramProb
 def test_ngram_prob():
-    ngp = NgramProb()
+    ngp = NgramProb('fake key')
     assert ngp.total_words_seen == 0
     assert len(ngp.get_sorted_word_likelihood()) == 0
     
