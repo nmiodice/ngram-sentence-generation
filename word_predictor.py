@@ -95,6 +95,15 @@ def del_word_gen(filename):
     except OSError:
         pass
 
+# The main entry point for the word_predictor utility. The tool has a few major
+# functionalities, all related to sentence generation using an ngram model.
+# Specifically, the tool can:
+#   1. Save, load, and delete training datasets into a pickled format
+#   2. Retrain on new data, specified by a plain text source file or a corpus
+#       from the nltk.corpus package, with parameterized ngram size
+#   3. Generate a sentence given a seed string, allowing for length limiting
+#
+# Usage details can be displayed by using the -h or --help flags
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-dt", "--delete_training_set", 
