@@ -125,7 +125,7 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--limit_length",
                     type = int,
                     default = 20,
-                    help="limit the number of words predicted",
+                    help="limit the number of words predicted (default = 20)",
                     action="store")
     args = parser.parse_args()
 

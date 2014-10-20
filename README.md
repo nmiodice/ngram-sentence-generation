@@ -47,7 +47,7 @@ optional arguments:
   -s SEED_STRING, --seed_string SEED_STRING
                         predict words starting with a seed string
   -l LIMIT_LENGTH, --limit_length LIMIT_LENGTH
-                        limit the number of words predicted
+                        limit the number of words predicted (default = 20)
 ```
 
 Retrain model on the **brown** and **abc** corpora, and generate a prediction from the seed sentence "saturated fats"
