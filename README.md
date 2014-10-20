@@ -11,8 +11,8 @@ While the generated sentences do look like real sentences, they often times don'
 
 If you are unfamiliar with the ngram model, it works like so:
 > - Break input sentences into sequences of length **n**. For example, if n = 3, "The brown fox jumps" becomes ['the', 'brown', 'fox], ['brown', 'fox', 'jumps']
-> - Calculate how frequently certain sets of words show up together
-> - Predict the next word based off of previously seen words
+> - Calculate how frequently sets of words show up together
+> - Predict the next word based off the frequency of previously seen word sets
 > - Rinse and repeat
 
 So, there are many limitations of this model, but hey, it is fun to play around with!
@@ -23,7 +23,7 @@ So, there are many limitations of this model, but hey, it is fun to play around 
 
 > - python3
 > - natural language tool kit: nltk
-> - nltk corpus files (technically optional, but definitely recommended)
+> - nltk corpus packages (technically optional, but definitely recommended)
 
 ---
 
