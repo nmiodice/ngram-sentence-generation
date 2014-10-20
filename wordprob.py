@@ -27,8 +27,7 @@ class WordGenerator:
     # original set of ngrams (i.e., if a 5gram is included, 4gram, 3gram and 
     # 2grams will be saved too)
     def add_list_of_ngrams(self, ng, include_shorter_grams = True):
-        for gram in ng:
-            self.word_probs.add_ngram_observation(gram, include_shorter_grams)
+        self.word_probs.add_ngram_observations(ng, include_shorter_grams)
     
     # Returns a sorted list of the most likely words that will come after
     # the sequence of of strings in WORDS, according to the NGRAMS added with 
@@ -98,22 +97,26 @@ class WordProb:
     # which if true, will include ngrams shorter than the original set of
     # ngrams (i.e., if a 5gram is included, 4gram, 3gram and 2grams will be
     # saved too)
-    def add_ngram_observation(self, ng_tuple, include_shorter_grams = True):
-        num_keys = len(ng_tuple) - 1
-        assert(num_keys) >= 1
-        observed_word = ng_tuple[-1]
+    def add_ngram_observations(self, ng, include_shorter_grams = True):
+        for ng_tuple in ng:
+            num_keys = len(ng_tuple) - 1
+            assert(num_keys) >= 1
+            observed_word = ng_tuple[-1]
 
-        keys = []
-        if include_shorter_grams == True:
-            for i in range(num_keys):
-                keys.append('_'.join(ng_tuple[0:i + 1]))
-        else:
-            keys.append('_'.join(ng_tuple[0:num_keys]))
+            keys = []
+            append = keys.append
+            if include_shorter_grams == True:
+                for i in range(num_keys):
+                    append('_'.join(ng_tuple[0:i + 1]))
+            else:
+                append('_'.join(ng_tuple[0:num_keys]))
             
-        for key in keys:
-            if (key in self.master) == False:
-                self.master[key] = NgramProb(key)
-            self.master[key].add_word_observation(observed_word)
+            for key in keys:
+                try:
+                    self.master[key].add_word_observation(observed_word)
+                except:
+                    self.master[key] = NgramProb(key)
+                    self.master[key].add_word_observation(observed_word)
 
     # Get the likelihood of a particular word given a list of preceding words
     # in the PRECEDING_WORDS list. Returns None if no key is matched in 

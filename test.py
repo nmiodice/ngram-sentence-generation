@@ -85,8 +85,8 @@ def test_word_prob():
         assert 0 == 1
         
     ng = ngrams(strContent, 3)
-    for gram in ng:
-        word_prob.add_ngram_observation(gram)
+#    for gram in ng:
+    word_prob.add_ngram_observations(ng)
 
     # now that the words are added, see if the calculations are correct
     words = word_prob.get_word_likelihood(['one', 'two'])
