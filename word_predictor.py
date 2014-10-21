@@ -128,6 +128,10 @@ if __name__ == "__main__":
                     help="limit the number of words predicted (default = 20)",
                     action="store")
     args = parser.parse_args()
+    
+    if not len(sys.argv) > 1:
+        parser.print_help()
+        sys.exit()
 
     if (args.ngram_size != None) and (args.retrain_nltk == None) \
         and (args.retrain_file == None):
@@ -161,11 +165,11 @@ if __name__ == "__main__":
         
     if retrained == True:
         save_word_gen(NGRAM_HASH_NAME, word_gen)
-    else:
-        word_gen = load_word_gen(NGRAM_HASH_NAME)
-        
+
     # generate new words if necessary
     if args.seed_string != None:
+        if word_gen == None:
+            word_gen = load_word_gen(NGRAM_HASH_NAME)
         args.seed_string = TextUtils.normalize_line(args.seed_string)
         args.seed_string = ' '.join(args.seed_string)
         generated = predict_words(word_gen, args.seed_string, args.limit_length)
